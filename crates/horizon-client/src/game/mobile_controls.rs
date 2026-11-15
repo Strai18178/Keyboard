@@ -553,8 +553,55 @@ impl Game<'_> {
         ))
     }
 
+    fn android_label_typing(&mut self, out: &Output) -> bool {
+        let controls = &mut self.mobile.controls;
+        let Some(ed) = controls.editor.as_mut() else {
+            return false;
+        };
+        if !ed.editing_label {
+            return false;
+        }
+        let Some(idx) = ed.selected_custom else {
+            ed.editing_label = false;
+            return false;
+        };
+        if ed.key_picker {
+            ed.editing_label = false;
+            return false;
+        }
+        let Some(btn) = controls.settings.custom_buttons.get_mut(idx) else {
+            ed.editing_label = false;
+            return false;
+        };
+        let mut done = false;
+        match out {
+            Output::Text(t) => {
+                for ch in t.chars() {
+                    let ok = ch.is_alphanumeric() || ch.is_ascii_graphic() || ch == ' ';
+                    if ok && btn.custom_label.chars().count() < 12 {
+                        btn.custom_label.push(ch);
+                    }
+                }
+            }
+            Output::Backspace | Output::Key(KeyCode::Backspace) => {
+                btn.custom_label.pop();
+            }
+            Output::Enter | Output::Close | Output::Key(KeyCode::Enter | KeyCode::Escape) => {
+                done = true;
+            }
+            _ => {}
+        }
+        if done {
+            ed.editing_label = false;
+            let _ = controls.settings.save();
+        }
+        true
+    }
     fn android_show_keyboard(&mut self) {
-        if let Some(ed) = &self.mobile.controls.editor {
+        if self.mobile.controls.editor.as_ref().is_some_and(|e| e.editing_label) {
+            let empty = String::new();
+            mobile_platform::show(&empty);
+        } else if let Some(ed) = &self.mobile.controls.editor {
             mobile_platform::show(if ed.editing_save_desc {
                 &ed.save_desc_input
             } else {
@@ -1681,6 +1728,12 @@ impl Game<'_> {
     /// Both naming dialogs (the editor's save-as and the hub's copy) type here
     /// instead of showing a keyboard inside the dialog.
     fn android_preset_typing(&mut self, out: &Output) -> bool {
+        if self.android_label_typing(out) {
+            if horizon_client::android_control_ui::output_dismisses(out) {
+                mobile_platform::hide();
+            }
+            return true;
+        }
         let handled = horizon_client::android_control_ui::apply_editor_or_preset_output(
             self.mobile.controls.editor.as_mut(),
             self.mobile.ui.preset_dialog.as_mut(),

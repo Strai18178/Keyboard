@@ -7462,19 +7462,12 @@ pub fn touch_hud_editor(
                                 }
                                 _ => {
                                     if let Some(idx) = ed.selected_custom {
-                                        let hints = [
-                                            "PRI", "SEC", "JUMP", "SNEAK", "SPRINT", "INV", "SWAP",
-                                            "DROP", "CHAT", "DEBUG", "3RD", "MOUSE", "MACRO",
-                                            "CLICK",
-                                        ];
                                         if let Some(btn) = tc.settings.custom_buttons.get_mut(idx) {
-                                            let pos = hints
-                                                .iter()
-                                                .position(|h| *h == btn.custom_label)
-                                                .map(|idx_h| (idx_h + 1) % hints.len())
-                                                .unwrap_or(0);
-                                            btn.custom_label = hints[pos].to_owned();
-                                        }
+    btn.custom_label.clear();
+}
+ed.editing_label = true;
+ed.keyboard_request = true;
+ed.status_msg = Some("Type the label, then press Enter. Empty = default name.".into());
                                     }
                                 }
                             }
