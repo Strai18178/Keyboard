@@ -1182,6 +1182,7 @@ const MOUSE_AND_ACTION_ITEMS: &[(&str, &str)] = &[
     ("Scroll Wheel Up", "mouse.scroll.up"),
     ("Scroll Wheel Down", "mouse.scroll.down"),
     ("Toggle Virtual Mouse", "mouse.virtual.toggle"),
+    ("Show Keyboard", "mouse.keyboard"),
     ("Mouse Look Area", "mouse.look"),
     ("Action: Attack / Mine", "action:key.attack"),
     ("Action: Use / Place", "action:key.use"),

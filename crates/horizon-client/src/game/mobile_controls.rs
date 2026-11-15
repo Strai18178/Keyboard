@@ -812,6 +812,12 @@ impl Game<'_> {
         if name == "mouse.look" {
             return;
         }
+        if name == "mouse.keyboard" {
+            if down {
+                self.android_show_keyboard();
+            }
+            return;
+        }
         if name == "mouse.virtual.toggle" {
             if down {
                 if !self.mobile.controls.settings.virtual_mouse_enabled {
